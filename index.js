@@ -38,8 +38,8 @@ app.post("/webhook", async (req, res) => {
 
       const valor = pagamento.transaction_details.total_paid_amount;
 
-      const coins = Math.floor(valor * 5);
-
+      const coins = 5;
+      
       coinsPendentes += coins;
 
       console.log("Coins adicionadas:", coins);
