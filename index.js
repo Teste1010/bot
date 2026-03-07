@@ -18,7 +18,7 @@ app.post("/webhook", async (req, res) => {
 
   try {
 
-    const paymentId = req.body.data.id;
+   const paymentId = req.body.resource.split("/").pop();
 
     const resposta = await fetch(
       "https://api.mercadopago.com/v1/payments/" + paymentId,
