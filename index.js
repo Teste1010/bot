@@ -21,11 +21,11 @@ app.post("/webhook", async (req, res) => {
     const paymentId = req.body.data.id;
 
     const resposta = await fetch(
-      https://api.mercadopago.com/v1/payments/${paymentId},
+      "https://api.mercadopago.com/v1/payments/" + paymentId,
       {
         method: "GET",
         headers: {
-          Authorization: Bearer ${ACCESS_TOKEN}
+          "Authorization": "Bearer " + ACCESS_TOKEN
         }
       }
     );
