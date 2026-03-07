@@ -3,15 +3,26 @@ const fetch = require("node-fetch");
 
 const app = express();
 
-let coinsPendentes = 0;
-
 app.use(express.json());
 
+// ACCESS TOKEN MERCADO PAGO
+const ACCESS_TOKEN = "APP_USR-1314109241069842-021013-04bb1f033d5fa8315116794aab4a5383-3173422981";
+
+// COINS PENDENTES
+let coinsPendentes = 0;
+
+
+// TESTE SERVIDOR
 app.get("/", (req, res) => {
+
   res.send("BOT ONLINE");
+
 });
 
+
+// WEBHOOK DO MERCADO PAGO
 app.post("/webhook", async (req, res) => {
+
   console.log("Webhook recebido:");
   console.log(req.body);
 
@@ -19,37 +30,57 @@ app.post("/webhook", async (req, res) => {
 
     const paymentId = req.body.data.id;
 
+    console.log("Payment ID:", paymentId);
+
     const resposta = await fetch(
       https://api.mercadopago.com/v1/payments/${paymentId},
       {
         headers: {
-          Authorization: Bearer SEU_ACCESS_TOKEN_AQUI
+          Authorization: Bearer ${ACCESS_TOKEN}
         }
       }
     );
 
     const pagamento = await resposta.json();
 
-    const valor = pagamento.transaction_amount;
+    console.log("Pagamento:", pagamento);
 
-    console.log("Valor pago:", valor);
+    if (pagamento.status === "approved") {
 
-    coinsPendentes += Math.floor(valor);
+      const valor = pagamento.transaction_amount;
+
+      console.log("Valor aprovado:", valor);
+
+      const coins = Math.floor(valor);
+
+      coinsPendentes += coins;
+
+      console.log("Coins adicionadas:", coins);
+      console.log("Coins totais:", coinsPendentes);
+
+    }
 
   } catch (erro) {
+
     console.log("Erro webhook:", erro);
+
   }
 
   res.sendStatus(200);
+
 });
 
+
+// ESP32 CONSULTA SE TEM COINS
 app.get("/check", (req, res) => {
 
   if (coinsPendentes > 0) {
 
-    let coins = coinsPendentes;
+    const coins = coinsPendentes;
 
     coinsPendentes = 0;
+
+    console.log("Enviando coins:", coins);
 
     res.send(String(coins));
 
@@ -61,8 +92,11 @@ app.get("/check", (req, res) => {
 
 });
 
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log("Servidor rodando");
+
+  console.log("Servidor rodando na porta", PORT);
+
 });
