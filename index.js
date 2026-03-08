@@ -38,7 +38,7 @@ app.post("/webhook", async (req, res) => {
 
       const valor = pagamento.transaction_amount;
 
-      const coins = Math.floor(valor);
+      const coins = 10;
       
       coinsPendentes += coins;
 
