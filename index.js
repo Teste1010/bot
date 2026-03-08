@@ -36,9 +36,9 @@ app.post("/webhook", async (req, res) => {
 
     if (pagamento.status === "approved") {
 
-      const valor = pagamento.transaction_details.total_paid_amount;
+      const valor = pagamento.transaction_amount;
 
-      const coins = 5;
+      const coins = Math.floor(valor);
       
       coinsPendentes += coins;
 
