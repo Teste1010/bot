@@ -7,7 +7,10 @@ app.use(express.json());
 const ACCESS_TOKEN = "APP_USR-1314109241069842-021013-04bb1f033d5fa8315116794aab4a5383-3173422981";
 
 let coinsPendentes = 0;
-
+app.get("/teste", (req, res) => {
+  coinsPendentes += 5;
+  res.send("5 coins adicionadas");
+});
 app.get("/", (req, res) => {
   res.send("BOT ONLINE");
 });
