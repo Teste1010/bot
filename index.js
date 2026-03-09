@@ -1,12 +1,15 @@
 const express = require("express");
 const fetch = require("node-fetch");
-
+const fs = require("fs");
 const app = express();
 app.use(express.json());
 
 const ACCESS_TOKEN = "APP_USR-1314109241069842-021013-04bb1f033d5fa8315116794aab4a5383-3173422981";
 
 let coinsPendentes = 0;
+if (fs.existsSync("coins.txt")) {
+  coinsPendentes = parseInt(fs.readFileSync("coins.txt"));
+}
 app.get("/teste", (req, res) => {
   coinsPendentes += 5;
   res.send("5 coins adicionadas");
@@ -43,6 +46,7 @@ app.post("/webhook", async (req, res) => {
       const coins = 10;
       
       coinsPendentes += coins;
+fs.writeFileSync("coins.txt", coinsPendentes.toString());
 
       console.log("Coins adicionadas:", coins);
 
