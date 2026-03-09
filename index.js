@@ -7,6 +7,7 @@ app.use(express.json());
 const ACCESS_TOKEN = "APP_USR-1314109241069842-021013-04bb1f033d5fa8315116794aab4a5383-3173422981";
 
 let coinsPendentes = 0;
+let pagamentosProcessados = {};
 if (fs.existsSync("coins.txt")) {
   coinsPendentes = parseInt(fs.readFileSync("coins.txt"));
 }
@@ -25,6 +26,12 @@ app.post("/webhook", async (req, res) => {
   try {
 
    const paymentId = req.body.data.id || req.body.id;
+    if (pagamentosProcessados[paymentId]) {
+  console.log("Pagamento já processado:", paymentId);
+  return res.sendStatus(200);
+}
+
+pagamentosProcessados[paymentId] = true;
     const resposta = await fetch(
       "https://api.mercadopago.com/v1/payments/" + paymentId,
       {
