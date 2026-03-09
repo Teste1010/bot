@@ -69,6 +69,17 @@ fs.writeFileSync("coins.txt", coinsPendentes.toString());
 
 });
 
+app.get("/add/:valor", (req, res) => {
+
+  const valor = parseInt(req.params.valor)
+
+  coinsPendentes += valor
+
+  console.log("Teste adicionado:", valor)
+
+  res.send("OK")
+
+})
 app.get("/check", (req, res) => {
 
   if (coinsPendentes > 0) {
