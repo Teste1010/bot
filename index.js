@@ -47,16 +47,15 @@ pagamentosProcessados[paymentId] = true;
     console.log(pagamento);
 
     if (pagamento.status === "approved") {
+const valor = pagamento.transaction_amount;
 
-      const valor = pagamento.transaction_amount;
+const coins = Math.floor(valor);
+   coinsPendentes += coins;
 
-      const coins = 5;
-      
-      coinsPendentes += coins;
+console.log("Valor pago:", valor);
+console.log("Créditos adicionados:", coins);
+
 fs.writeFileSync("coins.txt", coinsPendentes.toString());
-
-      console.log("Coins adicionadas:", coins);
-
     }
 
   } catch (erro) {
