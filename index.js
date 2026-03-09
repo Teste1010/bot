@@ -43,7 +43,7 @@ app.post("/webhook", async (req, res) => {
 
       const valor = pagamento.transaction_amount;
 
-      const coins = 10;
+      const coins = 5;
       
       coinsPendentes += coins;
 fs.writeFileSync("coins.txt", coinsPendentes.toString());
