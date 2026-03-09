@@ -25,7 +25,7 @@ app.post("/webhook", async (req, res) => {
 
   try {
 
-   const paymentId = req.body.data.id || req.body.id;
+   const paymentId = req.body.data?.id || req.body.resource || req.body.id;
     if (pagamentosProcessados[paymentId]) {
   console.log("Pagamento já processado:", paymentId);
   return res.sendStatus(200);
