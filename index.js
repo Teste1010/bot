@@ -51,7 +51,7 @@ app.get("/pix", async (req, res) => {
                 <div style="text-align:center; font-family:sans-serif; padding:20px;">
                     <h2 style="color:#2196F3;">Pagamento da Grua</h2>
                     <p>Valor: <b>R$ 5,00</b></p>
-                    <img src="https://chart.googleapis.com/chart?cht=qr&chl=${encodeURIComponent(copiaEcola)}&chs=250x250" style="border:10px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(copiaEcola)}" style="border:10px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
                     <p>Escaneie o QR Code acima ou use o Copia e Cola:</p>
                     <textarea style="width:100%;height:80px; font-size:12px;">${copiaEcola}</textarea>
                     <p style="background:#e3f2fd; padding:10px; border-radius:5px;"><b>Após pagar, a máquina libera em segundos!</b></p>
