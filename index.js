@@ -37,7 +37,7 @@ app.get("/pix", async (req, res) => {
         if (data.point_of_interaction) {
             const qr = data.point_of_interaction.transaction_data.qr_code;
             res.send(`<div style="text-align:center;font-family:sans-serif;"><h2>Pagamento Grua</h2><img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qr)}"><br><textarea style="width:80%;height:50px;">${qr}</textarea><p>Apos pagar, a maquina libera!</p></div>`);
-        } else { res.send("Erro no Mercado Pago. Verifique o Token."); }
+        } else { res.send("Erro no MP. Verifique o Token."); }
     } catch (e) { res.send("Erro no Servidor."); }
 });
 
