@@ -7,7 +7,9 @@ app.use(express.json());
 
 const ACCESS_TOKEN = "APP_USR-1314109241069842-021013-04bb1f033d5fa8315116794aab4a5383-3173422981";
 
-let coinsPendentes = 0;
+et coinsPendentes = 0;
+
+console.log("Servidor iniciado");
 let pagamentosProcessados = {};
 
 // carregar créditos salvos
@@ -87,12 +89,25 @@ app.get("/add/:valor", (req, res) => {
 
 app.get("/check", (req, res) => {
 
+  console.log("Coins atuais:", coinsPendentes);
+
   if (coinsPendentes > 0) {
 
     const coins = coinsPendentes;
 
     coinsPendentes = 0;
 
+    console.log("Liberando coins:", coins);
+
+    res.send(String(coins));
+
+  } else {
+
+    res.send("0");
+
+  }
+
+});
     fs.writeFileSync("coins.txt", "0");
 
     res.send(String(coins));
