@@ -7,7 +7,7 @@ app.use(express.json());
 
 const ACCESS_TOKEN = "APP_USR-1314109241069842-021013-04bb1f033d5fa8315116794aab4a5383-3173422981";
 
-et coinsPendentes = 0;
+let coinsPendentes = 0;
 
 console.log("Servidor iniciado");
 let pagamentosProcessados = {};
@@ -108,17 +108,8 @@ app.get("/check", (req, res) => {
   }
 
 });
-    fs.writeFileSync("coins.txt", "0");
+   
 
-    res.send(String(coins));
-
-  } else {
-
-    res.send("0");
-
-  }
-
-});
 
 const PORT = process.env.PORT || 3000;
 
