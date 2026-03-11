@@ -72,13 +72,14 @@ app.post("/webhook", async (req, res) => {
 
 app.get("/add/:valor", (req, res) => {
 
-  const valor = parseInt(req.params.valor);
+  const valor = Number(req.params.valor);
 
-  coinsPendentes += valor;
+  coinsPendentes = coinsPendentes + valor;
 
-  fs.writeFileSync("coins.txt", coinsPendentes.toString());
+  fs.writeFileSync("coins.txt", String(coinsPendentes));
 
-  console.log("Teste adicionado:", valor);
+  console.log("Créditos adicionados:", valor);
+  console.log("Total agora:", coinsPendentes);
 
   res.send("OK");
 
