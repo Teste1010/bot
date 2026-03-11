@@ -1,6 +1,5 @@
 const express = require("express");
 const fetch = require("node-fetch");
-const fs = require("fs");
 const app = express();
 app.use(express.json());
 
@@ -8,8 +7,7 @@ const ACCESS_TOKEN = "APP_USR-1314109241069842-021013-04bb1f033d5fa8315116794aab
 
 let coinsPendentes = 0;
 let pagamentosProcessados = {};
-if (fs.existsSync("coins.txt")) {
-  coinsPendentes = parseInt(fs.readFileSync("coins.txt"));
+
 }
 app.get("/teste", (req, res) => {
   coinsPendentes += 5;
@@ -55,7 +53,7 @@ const coins = Math.floor(valor);
 console.log("Valor pago:", valor);
 console.log("Créditos adicionados:", coins);
 
-fs.writeFileSync("coins.txt", coinsPendentes.toString());
+
     }
 
   } catch (erro) {
