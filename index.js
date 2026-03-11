@@ -89,23 +89,28 @@ app.get("/add/:valor", (req, res) => {
 
 app.get("/check", (req, res) => {
 
-  console.log("Coins atuais:", coinsPendentes);
+let coins = 0;
 
-  if (coinsPendentes > 0) {
+if (fs.existsSync("coins.txt")) {
 
-    const coins = coinsPendentes;
+coins = parseInt(fs.readFileSync("coins.txt"));
 
-    coinsPendentes = 0;
+}
 
-    console.log("Liberando coins:", coins);
+console.log("Coins no arquivo:", coins);
 
-    res.send(String(coins));
+if (coins > 0) {
 
-  } else {
+fs.writeFileSync("coins.txt", "0");
 
-    res.send("0");
+res.send(String(coins));
 
-  }
+} else {
+
+res.send("0");
+
+}
+
 });
    
 const PORT = process.env.PORT || 3000;
