@@ -35,4 +35,4 @@ app.post("/webhook", async (req, res) => {
 app.get("/check", (req, res) => res.send(ler()));
 app.get("/consumir", (req, res) => { salvar(0); res.send("ok"); });
 app.get("/", (req, res) => res.send("ONLINE"));
-app.listen(process.env.PORT || 3000);
+app.listen(process.env.PORT || 8080);
