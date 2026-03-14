@@ -1,55 +1,56 @@
 const express = require("express");
-const fetch = require("node-fetch");
 const fs = require("fs");
 const app = express();
 app.use(express.json());
 
-const ACCESS_TOKEN = "APP_USR-1314109241069842-021013-04bb1f033d5fa8315116794aab4a5383-3173422981";
+const BANCO_DADOS = "saldo.txt";
 
-const ler = () => { try { return fs.readFileSync("creditos.txt", "utf8"); } catch (e) { return "0"; } };
-const salvar = (v) => fs.writeFileSync("creditos.txt", v.toString());
-
-// Rota para gerar QR Code de R$ 5,00 (Para quem não usar a maquininha)
-app.get("/pix", async (req, res) => {
+// Função para ler o saldo atual
+function lerSaldo() {
     try {
-        const response = await fetch("https://api.mercadopago.com/v1/payments", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${ACCESS_TOKEN}`, "X-Idempotency-Key": "k" + Date.now() },
-            body: JSON.stringify({ transaction_amount: 5.0, description: "Grua", payment_method_id: "pix", payer: { email: "c@g.com" } })
-        });
-        const data = await response.json();
-        const qr = data.point_of_interaction.transaction_data.qr_code;
-        res.send(`<div style="text-align:center;font-family:sans-serif;"><h2>Pagamento Grua</h2><img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qr)}"><br><p>R$ 5,00 = 5 Créditos</p><textarea style="width:80%;height:50px;">${qr}</textarea></div>`);
-    } catch (e) { res.send("Servidor em manutenção, tente em 1 minuto."); }
-});
-
-// WEBHOOK - O coração do sistema (Aceita Cartão e Pix da Maquininha)
-app.post("/webhook", async (req, res) => {
-    try {
-        const paymentId = req.body.data ? req.body.data.id : (req.body.type === 'payment' ? req.body.id : null);
-        
-        if (paymentId) {
-            const r = await fetch("https://api.mercadopago.com/v1/payments/" + paymentId, { 
-                headers: { "Authorization": `Bearer ${ACCESS_TOKEN}` } 
-            });
-            const p = await r.json();
-
-            if (p.status === "approved") {
-                const valorPago = parseFloat(p.transaction_amount);
-                const saldoAtual = parseFloat(ler());
-                salvar(saldoAtual + valorPago);
-                console.log(`PAGAMENTO APROVADO: R$ ${valorPago} via ${p.payment_method_id}`);
-            }
-        }
+        return parseInt(fs.readFileSync(BANCO_DADOS, "utf8")) || 0;
     } catch (err) {
-        console.error("Erro no processamento do pagamento:", err);
+        return 0;
     }
-    res.sendStatus(200);
+}
+
+// Função para salvar o saldo
+function salvar(valor) {
+    fs.writeFileSync(BANCO_DADOS, valor.toString());
+}
+
+// ROTA DO WEBHOOK (O Mercado Pago avisa aqui)
+app.post("/webhook", (req, res) => {
+    console.log("Notificação recebida!");
+    
+    // Lógica para somar crédito (acumulativo)
+    let saldoAtual = lerSaldo();
+    salvar(saldoAtual + 1); // Soma +1 crédito a cada aviso de pagamento
+    
+    res.sendStatus(200); // Avisa ao Mercado Pago que recebemos
 });
 
-app.get("/check", (req, res) => res.send(ler()));
-app.get("/consumir", (req, res) => { salvar(0); res.send("0"); });
-app.get("/", (req, res) => res.send("SISTEMA ONLINE"));
+// ROTA PARA O ESP32 CONSULTAR O SALDO
+app.get("/check", (req, res) => {
+    res.send(lerSaldo().toString());
+});
 
-app.listen(process.env.PORT || 8080);
+// ROTA PARA O ESP32 ZERAR O SALDO APÓS BATER O RELÉ
+app.get("/consumir", (req, res) => {
+    salvar(0);
+    res.send("0");
+});
 
+// ROTA DE TESTE (Para você testar pelo navegador sem pagar)
+app.get("/teste", (req, res) => {
+    let saldoAtual = lerSaldo();
+    salvar(saldoAtual + 1);
+    res.send("Você enviou 1 crédito manual! Saldo atual: " + (saldoAtual + 1));
+});
+
+app.get("/", (req, res) => {
+    res.send("Servidor da Grua Online! Saldo: " + lerSaldo());
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Servidor rodando na porta " + PORT));
