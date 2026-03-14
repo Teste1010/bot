@@ -48,7 +48,7 @@ app.post("/webhook", async (req, res) => {
 });
 
 app.get("/check", (req, res) => res.send(ler()));
-app.get("/consumir", (req, res) => { salvar(5); res.send("5"); });
+app.get("/consumir", (req, res) => { salvar(0); res.send("0"); });
 app.get("/", (req, res) => res.send("SISTEMA ONLINE"));
 
 app.listen(process.env.PORT || 8080);
