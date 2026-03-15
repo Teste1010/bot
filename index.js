@@ -1,30 +1,13 @@
-const express = require("express");
-const fs = require("fs");
-const https = require("https"); 
-const app = express();
-app.use(express.json());
-
-// --- NOVA CONFIGURAÇÃO ---
-const ACCESS_TOKEN = "APP_USR-3278059917627331-031512-5d963b8219a8062842b20893786e170c-3173422981"; 
-const BANCO_DADOS = "saldo.txt";
-const LOG_PAGAMENTOS = "processados.txt";
-
-function ler() { try { return fs.readFileSync(BANCO_DADOS, "utf8"); } catch { return "0"; } }
-function salvar(v) { fs.writeFileSync(BANCO_DADOS, v.toString()); }
-function jaPago(id) { try { return fs.readFileSync(LOG_PAGAMENTOS, "utf8").includes(id); } catch { return false; } }
-
 app.post("/webhook", (req, res) => {
-    // Lógica Inteligente para capturar o ID
-    let paymentId = null;
-    if (req.body?.data?.id) {
-        paymentId = req.body.data.id;
-    } else if (req.body?.resource && req.body.resource.includes("/")) {
-        paymentId = req.body.resource.split("/").pop();
-    } else if (req.body?.id) {
-        paymentId = req.body.id;
+    // Pega o ID de qualquer lugar que o Mercado Pago enviar
+    let paymentId = req.body?.data?.id || req.body?.id;
+    
+    // Se vier no formato de link (resource), extrai apenas o número
+    if (!paymentId && req.body?.resource) {
+        paymentId = req.body.resource.toString().split("/").pop();
     }
 
-    console.log("Processando pagamento ID:", paymentId);
+    console.log("ID identificado para processar:", paymentId);
 
     if (paymentId && !jaPago(paymentId.toString())) {
         const options = {
@@ -42,7 +25,6 @@ app.post("/webhook", (req, res) => {
                     const p = JSON.parse(bodyData);
                     if (p.status === "approved") {
                         const valor = parseFloat(p.transaction_amount);
-                        // R$ 1 a 5 = 1 crédito | Acima de 5 = Divide por 5
                         let jogadas = (valor >= 1 && valor < 5) ? 1 : Math.floor(valor / 5);
 
                         if (jogadas > 0) {
@@ -60,11 +42,3 @@ app.post("/webhook", (req, res) => {
     }
     res.sendStatus(200); 
 });
-
-app.get("/check", (req, res) => res.send(ler()));
-app.get("/consumir", (req, res) => { salvar(0); res.send("0"); });
-app.get("/", (req, res) => res.send("Servidor Grua Ativo. Saldo: " + ler()));
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Servidor rodando com novo Token!"));
-
