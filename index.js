@@ -14,7 +14,7 @@ function jaPago(id) { try { return fs.readFileSync(LOG_PAGAMENTOS, "utf8").inclu
 
 app.post("/webhook", (req, res) => {
     let pId = req.body?.data?.id || req.body?.id || (req.body?.resource ? req.body.resource.split("/").pop() : null);
-    console.log("ID:", pId);
+    
     if (pId && !jaPago(pId.toString())) {
         https.get(`https://api.mercadopago.com/v1/payments/${pId}`, {
             headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` }
@@ -26,14 +26,19 @@ app.post("/webhook", (req, res) => {
                     const p = JSON.parse(d);
                     if (p.status === "approved") {
                         let v = parseFloat(p.transaction_amount);
-                        let j = (v >= 1 && v < 5) ? 1 : Math.floor(v / 5);
+                        
+                        // --- AQUI ESTÁ A MUDANÇA ---
+                        // Transforma o valor bruto em pulsos (Ex: R$ 10.50 vira 10 pulsos)
+                        let j = Math.floor(v); 
+
                         if (j > 0) {
-                            salvar(parseInt(ler()) + j);
+                            let saldoAtual = parseInt(ler());
+                            salvar(saldoAtual + j);
                             fs.appendFileSync(LOG_PAGAMENTOS, pId + "\n");
-                            console.log("PAGO: +" + j);
+                            console.log(`PAGO: R$ ${v} -> Pulsos: ${j}`);
                         }
                     }
-                } catch (e) {}
+                } catch (e) { console.log("Erro ao ler JSON"); }
             });
         });
     }
@@ -42,6 +47,6 @@ app.post("/webhook", (req, res) => {
 
 app.get("/check", (req, res) => res.send(ler()));
 app.get("/consumir", (req, res) => { salvar(0); res.send("0"); });
-app.get("/", (req, res) => res.send("Ativo. Saldo: " + ler()));
+app.get("/", (req, res) => res.send("Servidor Grua Ativo. Saldo Atual: " + ler()));
 
 app.listen(process.env.PORT || 3000);
